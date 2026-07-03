@@ -30,7 +30,7 @@ Orders arrive on your WhatsApp; payment is by QR transfer or Cash on Delivery.
 
 ## Before announcing the store
 
-- [ ] Edit `config.js`: replace `960XXXXXXX` with your real WhatsApp number.
+- [ ] Edit `config.js`: replace `9609900378` with your real WhatsApp number.
 - [ ] Upload your payment QR image named `qr.png`.
 - [ ] Replace the 12 sample products in `products.js` with your real catalog.
 - [ ] Place a test order yourself and confirm it arrives on your WhatsApp.
