@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Rosolite Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF7F8; --card:#FFFFFF; --ink:#17252A; --ink-soft:#5A6B70;
+    --line:#EADFE3; --rose:#A8385D; --rose-dark:#86294A; --rose-tint:#F8E9EF;
+    --gold:#E9B44C; --green:#1E7A4F; --green-tint:#E5F2EB; --red:#B4432F;
+    --radius:12px;
+  }
+  *{box-sizing:border-box; margin:0}
+  body{background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; font-size:15px; line-height:1.5; padding-bottom:60px}
+  button{font-family:inherit; cursor:pointer}
+  button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--rose); outline-offset:2px}
+  header{background:var(--card); border-bottom:1px solid var(--line); padding:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px}
+  header h1{font-family:'Bricolage Grotesque',sans-serif; font-size:20px}
+  header .who{font-size:12.5px; color:var(--ink-soft)}
+  main{max-width:900px; margin:0 auto; padding:16px}
+  .tabs{display:flex; gap:8px; margin:6px 0 16px}
+  .tabs button{border:1px solid var(--line); background:var(--card); border-radius:999px; padding:9px 18px; font-weight:600; font-size:14px; color:var(--ink-soft)}
+  .tabs button.on{background:var(--rose); border-color:var(--rose); color:#fff}
+  .panel{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px}
+  .panel h2{font-family:'Bricolage Grotesque',sans-serif; font-size:17px; margin-bottom:8px}
+  .muted{color:var(--ink-soft); font-size:13px}
+  .field{margin:10px 0}
+  .field label{display:block; font-weight:600; font-size:13px; margin-bottom:4px}
+  .field input,.field select,.field textarea{width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14.5px; font-family:inherit; background:var(--bg)}
+  .row{display:flex; gap:10px; flex-wrap:wrap}
+  .row .field{flex:1; min-width:130px}
+  .btn{background:var(--rose); color:#fff; border:none; border-radius:999px; padding:11px 20px; font-weight:700; font-size:14px}
+  .btn:hover{background:var(--rose-dark)}
+  .btn:disabled{opacity:.5; cursor:not-allowed}
+  .btn.ghost{background:none; color:var(--rose); border:1px solid var(--rose)}
+  .btn.small{padding:7px 14px; font-size:13px}
+  .btn.danger{background:none; border:none; color:var(--red); font-weight:600; font-size:13px; padding:4px}
+  .notice{border-radius:8px; padding:10px 14px; font-size:13.5px; margin:10px 0}
+  .notice.ok{background:var(--green-tint); color:var(--green)}
+  .notice.err{background:#FBEAE6; color:var(--red)}
+  .notice.info{background:var(--rose-tint); color:var(--rose-dark)}
+  .plist{margin-top:12px}
+  .pitem{display:flex; gap:10px; align-items:center; border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-bottom:8px; background:var(--card)}
+  .pitem .pe{font-size:22px; width:32px; text-align:center}
+  .pitem .pi{flex:1; min-width:0}
+  .pitem .pn{font-weight:600; font-size:14px}
+  .pitem .pm{font-size:12.5px; color:var(--ink-soft)}
+  .pitem .oos-tag{color:var(--red); font-weight:600}
+  .dirty{position:sticky; bottom:0; background:var(--card); border:1px solid var(--gold); border-radius:var(--radius); padding:12px 16px; margin-top:14px; display:flex; justify-content:space-between; align-items:center; gap:10px; box-shadow:0 -4px 16px rgba(23,37,42,.06)}
+  .obadge{border-radius:999px; padding:3px 10px; font-size:12px; font-weight:700}
+  .st-New{background:var(--rose-tint); color:var(--rose)}
+  .st-Paid{background:#FDF3DC; color:#8a6414}
+  .st-Out{background:#E7EDF8; color:#33518F}
+  .st-Delivered{background:var(--green-tint); color:var(--green)}
+  .st-Cancelled{background:#F0F0EF; color:var(--ink-soft)}
+  .oitem{border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:10px}
+  .ohead{display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap}
+  .ohead .onum{font-weight:700}
+  .obody{font-size:13.5px; color:var(--ink-soft); margin-top:6px; white-space:pre-wrap}
+  .ofoot{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px}
+  .ofoot select{padding:6px 10px; border-radius:8px; border:1px solid var(--line); font-size:13px}
+  code{background:var(--rose-tint); padding:1px 6px; border-radius:5px; font-size:12.5px}
+  details{margin:8px 0}
+  summary{cursor:pointer; font-weight:600; font-size:13.5px; color:var(--rose)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Rosolite Maldives — Admin</h1>
+  <span class="who" id="who"></span>
+</header>
+
+<main>
+  <!-- ============ LOGIN ============ -->
+  <section id="login" class="panel" hidden>
+    <h2>Connect to your store</h2>
+    <p class="muted">This panel edits your live catalog by talking to GitHub. It needs a personal access token — a private key only you have. It's saved only in this browser, never on any server.</p>
+    <details>
+      <summary>How to create your token (one time, ~2 minutes)</summary>
+      <ol class="muted" style="padding-left:18px; margin-top:6px">
+        <li>On github.com: your profile photo → <strong>Settings</strong> → <strong>Developer settings</strong> (bottom of sidebar) → <strong>Personal access tokens</strong> → <strong>Fine-grained tokens</strong> → <strong>Generate new token</strong>.</li>
+        <li>Name: <code>rosolite-admin</code>. Expiration: 90 days (you'll paste a fresh one when it expires).</li>
+        <li>Repository access: <strong>Only select repositories</strong> → choose <code>rosolitemaldives</code>.</li>
+        <li>Permissions → Repository permissions → <strong>Contents</strong> → <strong>Read and write</strong>. Nothing else.</li>
+        <li>Generate, copy the token (starts with <code>github_pat_</code>), paste it below.</li>
+      </ol>
+    </details>
+    <div class="field"><label for="tok">Personal access token</label>
+      <input id="tok" type="password" placeholder="github_pat_…"></div>
+    <button class="btn" id="saveTok">Connect</button>
+    <div id="loginMsg"></div>
+  </section>
+
+  <!-- ============ APP ============ -->
+  <section id="app" hidden>
+    <div class="tabs">
+      <button id="tabP" class="on">Products</button>
+      <button id="tabO">Orders</button>
+      <button id="tabS">Settings</button>
+    </div>
+
+    <!-- ---- products ---- -->
+    <div id="viewP">
+      <div class="panel">
+        <h2 id="formTitle">Add a product</h2>
+        <div class="row">
+          <div class="field" style="flex:2"><label>Name</label><input id="fN"></div>
+          <div class="field"><label>SKU</label><input id="fS" placeholder="auto"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Category</label><select id="fC"></select></div>
+          <div class="field"><label>Price (MVR)</label><input id="fP" type="number" min="0"></div>
+          <div class="field"><label>Emoji</label><input id="fE" placeholder="📦"></div>
+        </div>
+        <div class="field"><label>Description</label><input id="fD"></div>
+        <div class="row">
+          <div class="field"><label>Photo (optional — uploads to your site)</label><input id="fImg" type="file" accept="image/*"></div>
+          <div class="field"><label>In stock</label><select id="fIS"><option value="true">Yes</option><option value="false">No — sold out</option></select></div>
+        </div>
+        <button class="btn" id="addBtn">Add product</button>
+        <button class="btn ghost" id="cancelEdit" hidden>Cancel edit</button>
+        <div id="pMsg"></div>
+      </div>
+
+      <div class="plist" id="plist"></div>
+
+      <div class="dirty" id="dirtyBar" hidden>
+        <span><strong id="dirtyCount"></strong> unpublished change(s) — the live store hasn't updated yet.</span>
+        <button class="btn" id="publish">Publish to live store</button>
+      </div>
+    </div>
+
+    <!-- ---- orders ---- -->
+    <div id="viewO" hidden>
+      <div class="panel">
+        <h2>Log an order</h2>
+        <p class="muted">Paste the customer's WhatsApp order message — everything is read automatically. Orders are stored on this device only, so use Export as your backup.</p>
+        <div class="field"><textarea id="oPaste" rows="5" placeholder="🧾 New order ORD-…"></textarea></div>
+        <button class="btn" id="oParse">Add to board</button>
+        <div id="oMsg"></div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <div class="ohead">
+          <h2>Order board</h2>
+          <span>
+            <select id="oFilter">
+              <option>All</option><option>New</option><option>Paid</option>
+              <option>Out</option><option>Delivered</option><option>Cancelled</option>
+            </select>
+            <button class="btn small ghost" id="oExport">Export</button>
+            <button class="btn small ghost" id="oImport">Import</button>
+            <input type="file" id="oImportFile" accept=".json" hidden>
+          </span>
+        </div>
+        <div id="olist" style="margin-top:10px"></div>
+      </div>
+    </div>
+
+    <!-- ---- settings ---- -->
+    <div id="viewS" hidden>
+      <div class="panel">
+        <h2>Categories</h2>
+        <p class="muted">Comma-separated. Products keep their category even if you rename here, so update them after renaming.</p>
+        <div class="field"><input id="catEdit"></div>
+        <button class="btn small" id="catSave">Apply (publish from Products tab)</button>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h2>Connection</h2>
+        <p class="muted" id="connInfo"></p>
+        <button class="btn small ghost" id="forget">Disconnect (forget token on this device)</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ================= constants ================= */
+const OWNER = "hamxa9292-netizen";
+const REPO  = "rosolitemaldives";
+const API   = `https://api.github.com/repos/${OWNER}/${REPO}/contents/`;
+
+/* ================= helpers ================= */
+const $ = id => document.getElementById(id);
+const b64encode = s => btoa(unescape(encodeURIComponent(s)));
+const b64decode = s => decodeURIComponent(escape(atob(s.replace(/\n/g,""))));
+const msg = (el, text, kind) => { $(el).innerHTML = text ? `<div class="notice ${kind}">${text}</div>` : ""; };
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+let TOKEN = null;
+try { TOKEN = localStorage.getItem("gh_token"); } catch(e){}
+
+async function gh(path, options = {}){
+  const res = await fetch(API + path, {
+    ...options,
+    headers: {
+      "Authorization": "Bearer " + TOKEN,
+      "Accept": "application/vnd.github+json",
+      ...(options.headers || {})
+    }
+  });
+  if (res.status === 401) throw new Error("Token rejected — it may have expired. Disconnect in Settings and paste a new one.");
+  if (res.status === 404) throw new Error("File not found in the repository.");
+  if (!res.ok) throw new Error("GitHub error " + res.status);
+  return res.json();
+}
+
+/* ================= state ================= */
+let CATEGORIES = [];
+let PRODUCTS = [];
+let fileSha = null;
+let dirty = 0;
+let editingSku = null;
+
+/* ================= login flow ================= */
+async function start(){
+  if (!TOKEN){ $("login").hidden = false; return; }
+  try {
+    await loadProducts();
+    $("login").hidden = true;
+    $("app").hidden = false;
+    $("who").textContent = OWNER + "/" + REPO;
+    $("connInfo").textContent = `Connected to github.com/${OWNER}/${REPO}. Token is stored only in this browser.`;
+    renderCatalogUI();
+    renderOrders();
+  } catch(e){
+    $("login").hidden = false;
+    msg("loginMsg", esc(e.message), "err");
+  }
+}
+
+$("saveTok").onclick = async () => {
+  const t = $("tok").value.trim();
+  if (!t){ msg("loginMsg", "Paste your token first.", "err"); return; }
+  TOKEN = t;
+  msg("loginMsg", "Checking…", "info");
+  try {
+    await loadProducts();
+    try { localStorage.setItem("gh_token", t); } catch(e){}
+    location.reload();
+  } catch(e){
+    msg("loginMsg", esc(e.message), "err");
+  }
+};
+
+$("forget").onclick = () => {
+  try { localStorage.removeItem("gh_token"); } catch(e){}
+  location.reload();
+};
+
+/* ================= products: load & parse ================= */
+async function loadProducts(){
+  const data = await gh("products.js");
+  fileSha = data.sha;
+  const src = b64decode(data.content);
+  const out = new Function(src + "\n;return {CATEGORIES, PRODUCTS};")();
+  CATEGORIES = out.CATEGORIES;
+  PRODUCTS = out.PRODUCTS;
+}
+
+/* ================= products: generate & publish ================= */
+function generateProductsJs(){
+  const cat = JSON.stringify(CATEGORIES);
+  const blocks = PRODUCTS.map(p => `  {
+    sku: ${JSON.stringify(p.sku)},
+    name: ${JSON.stringify(p.name)},
+    category: ${JSON.stringify(p.category)},
+    price: ${Number(p.price)},
+    desc: ${JSON.stringify(p.desc)},
+    image: ${JSON.stringify(p.image || "")},
+    emoji: ${JSON.stringify(p.emoji || "📦")},
+    inStock: ${p.inStock ? "true" : "false"},
+  },`).join("\n");
+  return `/* PRODUCT CATALOG — managed by the admin panel.
+   You can still edit by hand: one { ... } block per product. */
+
+const CATEGORIES = ${cat};
+
+const PRODUCTS = [
+${blocks}
+];
+`;
+}
+
+$("publish").onclick = async () => {
+  $("publish").disabled = true;
+  msg("pMsg", "Publishing…", "info");
+  try {
+    const body = {
+      message: "Update catalog via admin panel",
+      content: b64encode(generateProductsJs()),
+      sha: fileSha,
+    };
+    const res = await gh("products.js", { method: "PUT", body: JSON.stringify(body) });
+    fileSha = res.content.sha;
+    dirty = 0;
+    renderCatalogUI();
+    msg("pMsg", "Published! The live store updates within a minute or two.", "ok");
+  } catch(e){
+    msg("pMsg", esc(e.message), "err");
+  }
+  $("publish").disabled = false;
+};
+
+/* ================= products: image upload ================= */
+async function uploadImage(file, sku){
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const path = `images/${sku.toLowerCase()}.${ext}`;
+  const b64 = await new Promise((ok, no) => {
+    const r = new FileReader();
+    r.onload = () => ok(r.result.split(",")[1]);
+    r.onerror = () => no(new Error("Could not read the image file"));
+    r.readAsDataURL(file);
+  });
+  let sha;
+  try { sha = (await gh(path)).sha; } catch(e){ sha = undefined; }
+  const body = { message: `Product image ${sku}`, content: b64, ...(sha ? { sha } : {}) };
+  await gh(path, { method: "PUT", body: JSON.stringify(body) });
+  return path;
+}
+
+/* ================= products: UI ================= */
+function renderCatalogUI(){
+  $("fC").innerHTML = CATEGORIES.map(c => `<option>${esc(c)}</option>`).join("");
+  $("catEdit").value = CATEGORIES.join(", ");
+  $("plist").innerHTML = PRODUCTS.map(p => `
+    <div class="pitem">
+      <div class="pe">${p.image ? "🖼️" : esc(p.emoji || "📦")}</div>
+      <div class="pi">
+        <div class="pn">${esc(p.name)} ${p.inStock ? "" : '<span class="oos-tag">· sold out</span>'}</div>
+        <div class="pm">${esc(p.category)} · MVR ${Number(p.price).toLocaleString()} · ${esc(p.sku)}</div>
+      </div>
+      <button class="btn small ghost" data-edit="${esc(p.sku)}">Edit</button>
+      <button class="btn small ghost" data-stock="${esc(p.sku)}">${p.inStock ? "Mark sold out" : "Restock"}</button>
+      <button class="btn danger" data-del="${esc(p.sku)}">Delete</button>
+    </div>`).join("") || `<p class="muted" style="padding:14px">No products yet.</p>`;
+  document.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
+    if (!confirm("Delete this product?")) return;
+    PRODUCTS = PRODUCTS.filter(p => p.sku !== b.dataset.del);
+    markDirty(); renderCatalogUI();
+  });
+  document.querySelectorAll("[data-stock]").forEach(b => b.onclick = () => {
+    const p = PRODUCTS.find(x => x.sku === b.dataset.stock);
+    p.inStock = !p.inStock; markDirty(); renderCatalogUI();
+  });
+  document.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => beginEdit(b.dataset.edit));
+  $("dirtyBar").hidden = dirty === 0;
+  $("dirtyCount").textContent = dirty;
+}
+
+function markDirty(){ dirty++; }
+
+function beginEdit(sku){
+  const p = PRODUCTS.find(x => x.sku === sku);
+  editingSku = sku;
+  $("formTitle").textContent = "Edit product";
+  $("addBtn").textContent = "Save changes";
+  $("cancelEdit").hidden = false;
+  $("fN").value = p.name; $("fS").value = p.sku; $("fC").value = p.category;
+  $("fP").value = p.price; $("fE").value = p.emoji || ""; $("fD").value = p.desc || "";
+  $("fIS").value = String(p.inStock);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function resetForm(){
+  editingSku = null;
+  $("formTitle").textContent = "Add a product";
+  $("addBtn").textContent = "Add product";
+  $("cancelEdit").hidden = true;
+  ["fN","fS","fP","fE","fD"].forEach(id => $(id).value = "");
+  $("fImg").value = ""; $("fIS").value = "true";
+}
+$("cancelEdit").onclick = resetForm;
+
+$("addBtn").onclick = async () => {
+  const name = $("fN").value.trim();
+  const price = Number($("fP").value);
+  if (!name || !(price >= 0)){ msg("pMsg", "Name and a valid price are required.", "err"); return; }
+  let sku = $("fS").value.trim() || autoSku($("fC").value);
+  if (!editingSku && PRODUCTS.some(p => p.sku === sku)){ msg("pMsg", "That SKU already exists.", "err"); return; }
+
+  const record = editingSku ? PRODUCTS.find(p => p.sku === editingSku) : {};
+  record.sku = editingSku || sku;
+  record.name = name;
+  record.category = $("fC").value;
+  record.price = price;
+  record.desc = $("fD").value.trim();
+  record.emoji = $("fE").value.trim() || "📦";
+  record.inStock = $("fIS").value === "true";
+
+  const file = $("fImg").files[0];
+  if (file){
+    msg("pMsg", "Uploading photo…", "info");
+    try { record.image = await uploadImage(file, record.sku); }
+    catch(e){ msg("pMsg", "Photo upload failed: " + esc(e.message), "err"); return; }
+  }
+  if (!editingSku) PRODUCTS.push(record);
+  markDirty(); resetForm(); renderCatalogUI();
+  msg("pMsg", "Saved to your draft — press <strong>Publish to live store</strong> below when ready.", "ok");
+};
+
+function autoSku(cat){
+  const prefix = (cat || "OT").slice(0,2).toUpperCase();
+  let n = PRODUCTS.length + 1, sku;
+  do { sku = `${prefix}-${String(n).padStart(3,"0")}`; n++; } while (PRODUCTS.some(p => p.sku === sku));
+  return sku;
+}
+
+$("catSave").onclick = () => {
+  CATEGORIES = $("catEdit").value.split(",").map(s => s.trim()).filter(Boolean);
+  markDirty(); renderCatalogUI();
+  msg("pMsg", "Categories updated in draft — publish from the Products tab.", "ok");
+  switchTab("P");
+};
+
+/* ================= orders ================= */
+let ORDERS = [];
+try { ORDERS = JSON.parse(localStorage.getItem("orders") || "[]"); } catch(e){ ORDERS = []; }
+const saveOrders = () => { try { localStorage.setItem("orders", JSON.stringify(ORDERS)); } catch(e){} };
+
+$("oParse").onclick = () => {
+  const text = $("oPaste").value.trim();
+  if (!text){ msg("oMsg", "Paste the WhatsApp order message first.", "err"); return; }
+  const grab = label => (text.match(new RegExp("^" + label + ":\\s*(.+)$", "m")) || [,""])[1].trim();
+  const orderNo = (text.match(/ORD-[A-Z0-9]+/) || [,""])[0] || ("MAN-" + Date.now().toString(36).toUpperCase().slice(-5));
+  if (ORDERS.some(o => o.orderNo === orderNo)){ msg("oMsg", `${esc(orderNo)} is already on the board.`, "err"); return; }
+  const items = (text.match(/^•.+$/gm) || []).map(l => l.replace(/^•\s*/,""));
+  ORDERS.unshift({
+    orderNo,
+    items,
+    total: grab("Total"),
+    name: grab("Name"), phone: grab("Phone"), area: grab("Area"),
+    address: grab("Address"), payment: grab("Payment"),
+    status: "New",
+    date: new Date().toISOString().slice(0,16).replace("T"," "),
+  });
+  saveOrders(); renderOrders();
+  $("oPaste").value = "";
+  msg("oMsg", `${esc(orderNo)} added to the board.`, "ok");
+};
+
+function renderOrders(){
+  const f = $("oFilter").value;
+  const list = ORDERS.filter(o => f === "All" || o.status === f);
+  $("olist").innerHTML = list.map((o, i) => `
+    <div class="oitem">
+      <div class="ohead">
+        <span class="onum">${esc(o.orderNo)} <span class="obadge st-${o.status}">${o.status === "Out" ? "Out for delivery" : o.status}</span></span>
+        <span class="muted">${esc(o.date)}</span>
+      </div>
+      <div class="obody">${o.items.map(esc).join("\n")}\n${esc(o.total ? "Total: " + o.total : "")}\n${esc(o.name)} · ${esc(o.phone)} · ${esc(o.area)}\n${esc(o.address)} · ${esc(o.payment)}</div>
+      <div class="ofoot">
+        <select data-st="${esc(o.orderNo)}">
+          ${["New","Paid","Out","Delivered","Cancelled"].map(s =>
+            `<option value="${s}" ${s === o.status ? "selected" : ""}>${s === "Out" ? "Out for delivery" : s}</option>`).join("")}
+        </select>
+        <button class="btn danger" data-odel="${esc(o.orderNo)}">Remove</button>
+      </div>
+    </div>`).join("") || `<p class="muted">No orders${f !== "All" ? " with this status" : " yet — paste one above"}.</p>`;
+  document.querySelectorAll("[data-st]").forEach(s => s.onchange = () => {
+    ORDERS.find(o => o.orderNo === s.dataset.st).status = s.value;
+    saveOrders(); renderOrders();
+  });
+  document.querySelectorAll("[data-odel]").forEach(b => b.onclick = () => {
+    if (!confirm("Remove this order from the board?")) return;
+    ORDERS = ORDERS.filter(o => o.orderNo !== b.dataset.odel);
+    saveOrders(); renderOrders();
+  });
+}
+$("oFilter").onchange = renderOrders;
+
+$("oExport").onclick = () => {
+  const blob = new Blob([JSON.stringify(ORDERS, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "rosolite-orders-" + new Date().toISOString().slice(0,10) + ".json";
+  a.click();
+};
+$("oImport").onclick = () => $("oImportFile").click();
+$("oImportFile").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const incoming = JSON.parse(r.result);
+      const known = new Set(ORDERS.map(o => o.orderNo));
+      incoming.forEach(o => { if (!known.has(o.orderNo)) ORDERS.push(o); });
+      saveOrders(); renderOrders();
+      msg("oMsg", "Import complete.", "ok");
+    } catch(err){ msg("oMsg", "That file couldn't be read as an orders backup.", "err"); }
+  };
+  r.readAsText(f);
+};
+
+/* ================= tabs ================= */
+function switchTab(t){
+  ["P","O","S"].forEach(x => {
+    $("view" + x).hidden = x !== t;
+    $("tab" + x).classList.toggle("on", x === t);
+  });
+}
+$("tabP").onclick = () => switchTab("P");
+$("tabO").onclick = () => switchTab("O");
+$("tabS").onclick = () => switchTab("S");
+
+/* ================= go ================= */
+start();
+</script>
+</body>
+</html>
