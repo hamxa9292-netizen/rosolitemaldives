@@ -15,7 +15,7 @@ const CONFIG = {
   // WhatsApp number that receives orders.
   // Country code + number, digits only. Maldives = 960.
   // Example: "9607771234"   <-- REPLACE THIS BEFORE LAUNCH
-  whatsappNumber: "9609900378",
+  whatsappNumber: "960XXXXXXX",
 
   // Currency label shown next to prices
   currency: "MVR",
