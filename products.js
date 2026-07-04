@@ -1,19 +1,20 @@
 /* ============================================================
-   PRODUCT CATALOG — one block { ... } per product.
-   To add a product: copy a block, paste it, edit the values,
-   and make sure there's a comma between blocks.
-   To remove a product: delete its whole block.
+   PRODUCT CATALOG — managed by the admin panel.
+   You can still edit by hand: one { ... } block per product.
 
-   Fields:
-   sku       – your product code (must be unique)
-   name      – product name shown to customers
-   category  – must exactly match one of your categories below
-   price     – number only, in MVR (no quotes)
-   desc      – one-line description
-   image     – filename of a photo you upload next to index.html,
-               or "" to show the emoji instead
-   emoji     – shown when there is no photo
-   inStock   – true or false. false shows "Out of stock".
+   Fields (all optional except sku, name, category, price):
+   desc     – short one-liner shown on the card
+   benefits – list of benefit lines, shown as ✓ points in the
+              product view. Write OUTCOMES, not features:
+              "Keeps drinks cold for 12 hours" beats "double wall".
+   specs    – list of "Label: value" lines (size, material, weight,
+              contents, origin) shown as a specs table
+   images   – list of photo filenames uploaded to the site;
+              first one is the main photo. 3-6 photos sell best:
+              front, back, label/detail, and one in real use.
+   badge    – small tag like "Bestseller" or "New" (or "")
+   emoji    – shown when there are no photos
+   inStock  – true or false
    ============================================================ */
 
 const CATEGORIES = ["Hardware", "Household", "Beauty", "Grocery"];
@@ -25,7 +26,14 @@ const PRODUCTS = [
     category: "Hardware",
     price: 145,
     desc: "Steel claw hammer with rubber grip handle.",
-    image: "",
+    benefits: [
+      "Comfortable rubber grip won't slip in humid weather",
+      "Balanced 16oz head drives nails with less effort",
+      "Claw pulls bent nails cleanly without damaging wood",
+    ],
+    specs: ["Head weight: 16oz (450g)", "Handle: Rubber grip, steel core", "Length: 32cm"],
+    images: [],
+    badge: "",
     emoji: "🔨",
     inStock: true,
   },
@@ -35,7 +43,13 @@ const PRODUCTS = [
     category: "Hardware",
     price: 120,
     desc: "Flathead and Phillips sizes, magnetic tips.",
-    image: "",
+    benefits: [
+      "Magnetic tips hold screws steady — no more dropped screws",
+      "Covers the 6 sizes that handle almost every household job",
+    ],
+    specs: ["Contents: 3 flathead + 3 Phillips", "Material: Chrome vanadium steel"],
+    images: [],
+    badge: "Bestseller",
     emoji: "🪛",
     inStock: true,
   },
@@ -45,7 +59,13 @@ const PRODUCTS = [
     category: "Hardware",
     price: 165,
     desc: "4 sockets with surge protection switch.",
-    image: "",
+    benefits: [
+      "Reach any corner of the room from one wall socket",
+      "Surge protection switch guards your electronics",
+    ],
+    specs: ["Length: 5 meters", "Sockets: 4 universal", "Rated: 250V 10A"],
+    images: [],
+    badge: "",
     emoji: "🔌",
     inStock: true,
   },
@@ -55,7 +75,13 @@ const PRODUCTS = [
     category: "Household",
     price: 110,
     desc: "Concentrated powder for machine and hand wash.",
-    image: "",
+    benefits: [
+      "Concentrated formula — one box lasts a family about a month",
+      "Works in both machine and hand wash",
+    ],
+    specs: ["Net weight: 3kg", "Type: Powder, fresh scent"],
+    images: [],
+    badge: "",
     emoji: "🧺",
     inStock: true,
   },
@@ -65,7 +91,14 @@ const PRODUCTS = [
     category: "Household",
     price: 95,
     desc: "Clear stackable box with clip-lock lid.",
-    image: "",
+    benefits: [
+      "See what's inside without opening — clear walls",
+      "Clip-lock lid keeps out damp and insects",
+      "Stacks safely to save floor space",
+    ],
+    specs: ["Capacity: 30 liters", "Size: 45 × 33 × 26 cm", "Material: PP plastic"],
+    images: [],
+    badge: "",
     emoji: "📦",
     inStock: true,
   },
@@ -75,7 +108,13 @@ const PRODUCTS = [
     category: "Household",
     price: 65,
     desc: "Soft-bristle broom, lightweight aluminium handle.",
-    image: "",
+    benefits: [
+      "Soft bristles pick up fine dust on tile floors",
+      "Light aluminium handle is easy on the wrists",
+    ],
+    specs: ["Handle: Aluminium, 120cm", "Head width: 30cm"],
+    images: [],
+    badge: "",
     emoji: "🧹",
     inStock: true,
   },
@@ -85,7 +124,13 @@ const PRODUCTS = [
     category: "Beauty",
     price: 85,
     desc: "Argan oil shampoo for dry hair. Sulfate free.",
-    image: "",
+    benefits: [
+      "Argan oil restores softness to sun- and salt-dried hair",
+      "Sulfate free — gentle enough for daily use",
+    ],
+    specs: ["Volume: 400ml", "Type: Sulfate-free, with argan oil"],
+    images: [],
+    badge: "",
     emoji: "🧴",
     inStock: true,
   },
@@ -95,7 +140,13 @@ const PRODUCTS = [
     category: "Beauty",
     price: 75,
     desc: "Foaming wash for all skin types. Fragrance free.",
-    image: "",
+    benefits: [
+      "Cleans without the tight, dry feeling afterwards",
+      "Fragrance free and dermatologically tested",
+    ],
+    specs: ["Volume: 150ml", "Skin type: All, incl. sensitive"],
+    images: [],
+    badge: "",
     emoji: "🫧",
     inStock: true,
   },
@@ -105,7 +156,13 @@ const PRODUCTS = [
     category: "Beauty",
     price: 90,
     desc: "Shea butter lotion, non-greasy and quick absorbing.",
-    image: "",
+    benefits: [
+      "Absorbs in seconds — no sticky feeling in the heat",
+      "Shea butter keeps skin soft through the day",
+    ],
+    specs: ["Volume: 250ml", "Key ingredient: Shea butter"],
+    images: [],
+    badge: "",
     emoji: "🧴",
     inStock: true,
   },
@@ -115,7 +172,13 @@ const PRODUCTS = [
     category: "Grocery",
     price: 185,
     desc: "Premium long-grain basmati, vacuum sealed.",
-    image: "",
+    benefits: [
+      "Long grains cook up fluffy and separate, never sticky",
+      "Vacuum sealed to stay fresh in island humidity",
+    ],
+    specs: ["Net weight: 5kg", "Grain: Extra-long basmati"],
+    images: [],
+    badge: "Bestseller",
     emoji: "🍚",
     inStock: true,
   },
@@ -125,7 +188,13 @@ const PRODUCTS = [
     category: "Grocery",
     price: 28,
     desc: "Tuna chunks in vegetable oil. Ready to eat.",
-    image: "",
+    benefits: [
+      "Ready to eat — instant protein for any meal",
+      "Long shelf life, perfect for the pantry",
+    ],
+    specs: ["Net weight: 185g", "Packing: Vegetable oil"],
+    images: [],
+    badge: "",
     emoji: "🥫",
     inStock: true,
   },
@@ -135,7 +204,13 @@ const PRODUCTS = [
     category: "Grocery",
     price: 92,
     desc: "Refined sunflower oil, 2-liter bottle.",
-    image: "",
+    benefits: [
+      "Neutral taste that works for frying and curries alike",
+      "2L family size — better value per liter",
+    ],
+    specs: ["Volume: 2 liters", "Type: Refined sunflower"],
+    images: [],
+    badge: "",
     emoji: "🫒",
     inStock: true,
   },
