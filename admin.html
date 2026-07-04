@@ -63,6 +63,11 @@
   .ofoot{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px}
   .ofoot select{padding:6px 10px; border-radius:8px; border:1px solid var(--line); font-size:13px}
   code{background:var(--rose-tint); padding:1px 6px; border-radius:5px; font-size:12.5px}
+  .photo-list{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px}
+  .photo-chip{border:1px solid var(--line); border-radius:8px; padding:6px; width:92px; text-align:center; background:var(--bg)}
+  .photo-chip img{width:100%; height:60px; object-fit:cover; border-radius:5px; background:#eee}
+  .photo-chip .pc-main{font-size:10px; font-weight:700; color:var(--green)}
+  .photo-chip button{background:none; border:none; font-size:11px; font-weight:600; color:var(--rose); padding:2px 4px}
   details{margin:8px 0}
   summary{cursor:pointer; font-weight:600; font-size:13.5px; color:var(--rose)}
 </style>
@@ -123,8 +128,10 @@
           <textarea id="fB" rows="3"></textarea></div>
         <div class="field"><label>Specs — one per line as "Label: value" (e.g. "Size: 45 × 33 cm")</label>
           <textarea id="fSp" rows="3"></textarea></div>
+        <div class="field"><label>Current photos — first is the main photo</label>
+          <div id="photoList" class="photo-list"><span class="muted">None yet</span></div></div>
         <div class="row">
-          <div class="field"><label>Photos (3–6 sell best; first = main photo)</label><input id="fImg" type="file" accept="image/*" multiple></div>
+          <div class="field"><label>Add photos (aim for 4–6; they add to the gallery)</label><input id="fImg" type="file" accept="image/*" multiple></div>
           <div class="field"><label>Badge</label><select id="fBadge"><option value="">None</option><option>Bestseller</option><option>New</option><option>Sale</option></select></div>
           <div class="field"><label>In stock</label><select id="fIS"><option value="true">Yes</option><option value="false">No — sold out</option></select></div>
         </div>
@@ -227,6 +234,28 @@ let PRODUCTS = [];
 let fileSha = null;
 let dirty = 0;
 let editingSku = null;
+let editImages = [];
+
+function renderPhotoList(){
+  const el = $("photoList");
+  if (!editImages.length){ el.innerHTML = '<span class="muted">None yet</span>'; return; }
+  el.innerHTML = editImages.map((img, i) => `
+    <div class="photo-chip">
+      <img src="../${esc(img)}" onerror="this.style.opacity=.3" alt="">
+      ${i === 0 ? '<div class="pc-main">MAIN</div>'
+        : `<button data-main="${i}">Make main</button>`}
+      <button data-rmimg="${i}">Remove</button>
+    </div>`).join("");
+  el.querySelectorAll("[data-main]").forEach(b => b.onclick = () => {
+    const i = Number(b.dataset.main);
+    editImages.unshift(editImages.splice(i, 1)[0]);
+    renderPhotoList();
+  });
+  el.querySelectorAll("[data-rmimg]").forEach(b => b.onclick = () => {
+    editImages.splice(Number(b.dataset.rmimg), 1);
+    renderPhotoList();
+  });
+}
 
 /* ================= login flow ================= */
 async function start(){
@@ -238,6 +267,7 @@ async function start(){
     $("who").textContent = OWNER + "/" + REPO;
     $("connInfo").textContent = `Connected to github.com/${OWNER}/${REPO}. Token is stored only in this browser.`;
     renderCatalogUI();
+    renderPhotoList();
     renderOrders();
   } catch(e){
     $("login").hidden = false;
@@ -407,6 +437,8 @@ function beginEdit(sku){
   $("fBadge").value = p.badge || "";
   $("fW").value = p.wasPrice || "";
   $("fSold").value = p.sold || "";
+  editImages = [...(p.images || (p.image ? [p.image] : []))];
+  renderPhotoList();
   $("fIS").value = String(p.inStock);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -418,6 +450,7 @@ function resetForm(){
   $("cancelEdit").hidden = true;
   ["fN","fS","fP","fE","fD","fB","fSp","fW","fSold"].forEach(id => $(id).value = "");
   $("fImg").value = ""; $("fBadge").value = ""; $("fIS").value = "true";
+  editImages = []; renderPhotoList();
 }
 $("cancelEdit").onclick = resetForm;
 
@@ -445,14 +478,13 @@ $("addBtn").onclick = async () => {
 
   const files = Array.from($("fImg").files || []);
   if (files.length){
-    const paths = [];
     for (let i = 0; i < files.length; i++){
       msg("pMsg", `Uploading photo ${i + 1} of ${files.length}…`, "info");
-      try { paths.push(await uploadImage(files[i], record.sku, i)); }
+      try { editImages.push(await uploadImage(files[i], record.sku, Date.now().toString(36) + i)); }
       catch(e){ msg("pMsg", "Photo upload failed: " + esc(e.message), "err"); return; }
     }
-    record.images = paths;
   }
+  record.images = [...editImages];
   if (!editingSku) PRODUCTS.push(record);
   markDirty(); resetForm(); renderCatalogUI();
   msg("pMsg", "Saved to your draft — press <strong>Publish to live store</strong> below when ready.", "ok");
