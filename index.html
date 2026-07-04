@@ -287,6 +287,27 @@
   }
   .pm-add:hover{background:#000}
   .pm-add:disabled{opacity:.4; cursor:not-allowed}
+
+  /* ---------- shein-pattern extras ---------- */
+  .heart{
+    position:absolute; top:8px; right:8px; z-index:2; background:rgba(255,255,255,.92);
+    border:none; border-radius:999px; width:30px; height:30px; font-size:15px;
+    display:flex; align-items:center; justify-content:center; color:#999;
+  }
+  .heart.on{color:var(--rose)}
+  .price-row{display:flex; align-items:baseline; gap:6px; flex-wrap:wrap}
+  .price.sale{color:#FA6338}
+  .was{color:#AAA; font-size:12px; text-decoration:line-through; font-weight:500}
+  .disc{
+    background:#FA6338; color:#fff; font-size:10.5px; font-weight:700;
+    border-radius:2px; padding:1px 5px;
+  }
+  .soldtag{color:#999; font-size:11px; font-weight:500}
+  .pm-price-row{display:flex; align-items:baseline; gap:8px; margin:4px 0 8px; flex-wrap:wrap}
+  .pm-price-row .pm-price{margin:0}
+  .pm-price.sale{color:#FA6338}
+  .pm-was{color:#AAA; font-size:14px; text-decoration:line-through}
+  .pm-disc{background:#FA6338; color:#fff; font-size:12px; font-weight:700; border-radius:2px; padding:2px 7px}
   @media(prefers-reduced-motion:reduce){
     *{transition:none !important; animation:none !important}
     html{scroll-behavior:auto}
@@ -353,6 +374,9 @@ let drawerMode = "cart";             // cart | checkout | confirm
 let lastOrder = null;
 
 try { cart = JSON.parse(localStorage.getItem("cart") || "{}"); } catch(e){ cart = {}; }
+let wishlist = new Set();
+try { wishlist = new Set(JSON.parse(localStorage.getItem("wishlist") || "[]")); } catch(e){}
+const saveWishlist = () => { try { localStorage.setItem("wishlist", JSON.stringify([...wishlist])); } catch(e){} };
 const saveCart = () => { try { localStorage.setItem("cart", JSON.stringify(cart)); } catch(e){} };
 
 const $ = id => document.getElementById(id);
@@ -385,6 +409,10 @@ function productCard(p){
   const img = src
     ? `<img src="${src}" alt="${p.name}" loading="lazy" onerror="this.outerHTML='${p.emoji}'">`
     : p.emoji;
+  const disc = p.wasPrice && p.wasPrice > p.price ? Math.round((1 - p.price / p.wasPrice) * 100) : 0;
+  const priceRow = disc
+    ? `<span class="price sale">${money(p.price)}</span><span class="was">${moneyPlain(p.wasPrice)}</span><span class="disc">-${disc}%</span>`
+    : `<span class="price">${money(p.price)}</span>`;
   const action = !p.inStock
     ? `<span class="oos">Out of stock</span>`
     : qty === 0
@@ -396,11 +424,12 @@ function productCard(p){
          </div>`;
   return `<div class="product" data-view="${p.sku}">
     ${p.badge ? `<span class="badge-tag">${p.badge}</span>` : ""}
+    <button class="heart ${wishlist.has(p.sku) ? "on" : ""}" data-heart="${p.sku}" aria-label="Save ${p.name}">${wishlist.has(p.sku) ? "♥" : "♡"}</button>
     <div class="thumb">${img}</div>
     <div class="pbody">
+      <div class="prow" style="margin-top:0"><span class="price-row">${priceRow}</span>${action}</div>
       <div class="pname">${p.name}</div>
-      <div class="pdesc">${p.desc}</div>
-      <div class="prow"><span class="price">${money(p.price)}</span>${action}</div>
+      ${p.sold ? `<span class="soldtag">${p.sold}+ sold</span>` : ""}
     </div>
   </div>`;
 }
@@ -431,6 +460,12 @@ function bindCardButtons(){
   document.querySelectorAll("[data-sku]").forEach(b => b.onclick = e => { e.stopPropagation(); changeQty(b.dataset.sku, +1); });
   document.querySelectorAll("[data-inc]").forEach(b => b.onclick = e => { e.stopPropagation(); changeQty(b.dataset.inc, +1); });
   document.querySelectorAll("[data-dec]").forEach(b => b.onclick = e => { e.stopPropagation(); changeQty(b.dataset.dec, -1); });
+  document.querySelectorAll("[data-heart]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const s = b.dataset.heart;
+    wishlist.has(s) ? wishlist.delete(s) : wishlist.add(s);
+    saveWishlist(); renderCatalog();
+  });
   document.querySelectorAll("[data-view]").forEach(c => c.onclick = () => openProduct(c.dataset.view));
 }
 
@@ -484,8 +519,12 @@ function renderProductModal(){
     ${thumbs}
     <div class="pm-body">
       <h2>${p.name}</h2>
-      <div class="pm-cat">${p.category} · ${p.sku}</div>
-      <div class="pm-price">${moneyPlain(p.price)}</div>
+      <div class="pm-cat">${p.category} · ${p.sku}${p.sold ? ` · ${p.sold}+ sold` : ""}</div>
+      <div class="pm-price-row">${
+        p.wasPrice && p.wasPrice > p.price
+          ? `<span class="pm-price sale">${moneyPlain(p.price)}</span><span class="pm-was">${moneyPlain(p.wasPrice)}</span><span class="pm-disc">-${Math.round((1 - p.price / p.wasPrice) * 100)}%</span>`
+          : `<span class="pm-price">${moneyPlain(p.price)}</span>`
+      }</div>
       <p class="pm-desc">${p.desc || ""}</p>
       ${benefits}
       ${specs}
