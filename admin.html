@@ -116,9 +116,14 @@
           <div class="field"><label>Price (MVR)</label><input id="fP" type="number" min="0"></div>
           <div class="field"><label>Emoji</label><input id="fE" placeholder="📦"></div>
         </div>
-        <div class="field"><label>Description</label><input id="fD"></div>
+        <div class="field"><label>Short description (shown on the card)</label><input id="fD"></div>
+        <div class="field"><label>Benefits — one per line (shown as ✓ points; write outcomes, e.g. "Keeps drinks cold for 12 hours")</label>
+          <textarea id="fB" rows="3"></textarea></div>
+        <div class="field"><label>Specs — one per line as "Label: value" (e.g. "Size: 45 × 33 cm")</label>
+          <textarea id="fSp" rows="3"></textarea></div>
         <div class="row">
-          <div class="field"><label>Photo (optional — uploads to your site)</label><input id="fImg" type="file" accept="image/*"></div>
+          <div class="field"><label>Photos (3–6 sell best; first = main photo)</label><input id="fImg" type="file" accept="image/*" multiple></div>
+          <div class="field"><label>Badge</label><select id="fBadge"><option value="">None</option><option>Bestseller</option><option>New</option><option>Sale</option></select></div>
           <div class="field"><label>In stock</label><select id="fIS"><option value="true">Yes</option><option value="false">No — sold out</option></select></div>
         </div>
         <button class="btn" id="addBtn">Add product</button>
@@ -269,8 +274,11 @@ function generateProductsJs(){
     name: ${JSON.stringify(p.name)},
     category: ${JSON.stringify(p.category)},
     price: ${Number(p.price)},
-    desc: ${JSON.stringify(p.desc)},
-    image: ${JSON.stringify(p.image || "")},
+    desc: ${JSON.stringify(p.desc || "")},
+    benefits: ${JSON.stringify(p.benefits || [])},
+    specs: ${JSON.stringify(p.specs || [])},
+    images: ${JSON.stringify(p.images || (p.image ? [p.image] : []))},
+    badge: ${JSON.stringify(p.badge || "")},
     emoji: ${JSON.stringify(p.emoji || "📦")},
     inStock: ${p.inStock ? "true" : "false"},
   },`).join("\n");
@@ -306,9 +314,9 @@ $("publish").onclick = async () => {
 };
 
 /* ================= products: image upload ================= */
-async function uploadImage(file, sku){
+async function uploadImage(file, sku, idx){
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
-  const path = `images/${sku.toLowerCase()}.${ext}`;
+  const path = `images/${sku.toLowerCase()}${idx ? "-" + idx : ""}.${ext}`;
   const b64 = await new Promise((ok, no) => {
     const r = new FileReader();
     r.onload = () => ok(r.result.split(",")[1]);
@@ -361,6 +369,9 @@ function beginEdit(sku){
   $("cancelEdit").hidden = false;
   $("fN").value = p.name; $("fS").value = p.sku; $("fC").value = p.category;
   $("fP").value = p.price; $("fE").value = p.emoji || ""; $("fD").value = p.desc || "";
+  $("fB").value = (p.benefits || []).join("\n");
+  $("fSp").value = (p.specs || []).join("\n");
+  $("fBadge").value = p.badge || "";
   $("fIS").value = String(p.inStock);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -370,8 +381,8 @@ function resetForm(){
   $("formTitle").textContent = "Add a product";
   $("addBtn").textContent = "Add product";
   $("cancelEdit").hidden = true;
-  ["fN","fS","fP","fE","fD"].forEach(id => $(id).value = "");
-  $("fImg").value = ""; $("fIS").value = "true";
+  ["fN","fS","fP","fE","fD","fB","fSp"].forEach(id => $(id).value = "");
+  $("fImg").value = ""; $("fBadge").value = ""; $("fIS").value = "true";
 }
 $("cancelEdit").onclick = resetForm;
 
@@ -388,14 +399,21 @@ $("addBtn").onclick = async () => {
   record.category = $("fC").value;
   record.price = price;
   record.desc = $("fD").value.trim();
+  record.benefits = $("fB").value.split("\n").map(s => s.trim()).filter(Boolean);
+  record.specs = $("fSp").value.split("\n").map(s => s.trim()).filter(Boolean);
+  record.badge = $("fBadge").value;
   record.emoji = $("fE").value.trim() || "📦";
   record.inStock = $("fIS").value === "true";
 
-  const file = $("fImg").files[0];
-  if (file){
-    msg("pMsg", "Uploading photo…", "info");
-    try { record.image = await uploadImage(file, record.sku); }
-    catch(e){ msg("pMsg", "Photo upload failed: " + esc(e.message), "err"); return; }
+  const files = Array.from($("fImg").files || []);
+  if (files.length){
+    const paths = [];
+    for (let i = 0; i < files.length; i++){
+      msg("pMsg", `Uploading photo ${i + 1} of ${files.length}…`, "info");
+      try { paths.push(await uploadImage(files[i], record.sku, i)); }
+      catch(e){ msg("pMsg", "Photo upload failed: " + esc(e.message), "err"); return; }
+    }
+    record.images = paths;
   }
   if (!editingSku) PRODUCTS.push(record);
   markDirty(); resetForm(); renderCatalogUI();
