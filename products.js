@@ -13,6 +13,11 @@
               first one is the main photo. 3-6 photos sell best:
               front, back, label/detail, and one in real use.
    badge    – small tag like "Bestseller" or "New" (or "")
+   wasPrice – optional: the old price. If higher than price, the
+              store shows a strikethrough + discount % tag.
+              Only use REAL previous prices — fake discounts
+              destroy trust (and are illegal in many places).
+   sold     – optional number: shows "40+ sold". Keep it honest.
    emoji    – shown when there are no photos
    inStock  – true or false
    ============================================================ */
@@ -42,6 +47,8 @@ const PRODUCTS = [
     name: "Screwdriver Set (6 pcs)",
     category: "Hardware",
     price: 120,
+    wasPrice: 150,
+    sold: 40,
     desc: "Flathead and Phillips sizes, magnetic tips.",
     benefits: [
       "Magnetic tips hold screws steady — no more dropped screws",
@@ -123,6 +130,7 @@ const PRODUCTS = [
     name: "Moisturizing Shampoo 400ml",
     category: "Beauty",
     price: 85,
+    wasPrice: 100,
     desc: "Argan oil shampoo for dry hair. Sulfate free.",
     benefits: [
       "Argan oil restores softness to sun- and salt-dried hair",
@@ -171,6 +179,8 @@ const PRODUCTS = [
     name: "Basmati Rice 5kg",
     category: "Grocery",
     price: 185,
+    wasPrice: 210,
+    sold: 65,
     desc: "Premium long-grain basmati, vacuum sealed.",
     benefits: [
       "Long grains cook up fluffy and separate, never sticky",
