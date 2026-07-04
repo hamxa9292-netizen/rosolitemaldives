@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Store</title> 
+<title>Store</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -182,6 +182,163 @@
     background:var(--mango); color:var(--ink); border:none; border-radius:999px;
     padding:11px 18px; font-weight:700; font-size:14px; white-space:nowrap;
   }
+  /* ---------- badges ---------- */
+  .badge{
+    position:absolute; top:8px; left:8px; z-index:2; border-radius:999px;
+    padding:3px 10px; font-size:11px; font-weight:700; letter-spacing:.02em;
+  }
+  .badge.Bestseller{background:var(--mango); color:var(--ink)}
+  .badge.New{background:var(--teal); color:#fff}
+  .badge.LowStock{background:#B4432F; color:#fff}
+  .thumb{position:relative}
+
+  /* ---------- product detail modal ---------- */
+  #pmodal{
+    position:fixed; inset:0; z-index:50; display:none; align-items:flex-end; justify-content:center;
+  }
+  #pmodal.show{display:flex}
+  #pmodal .pm-back{position:absolute; inset:0; background:rgba(23,37,42,.5)}
+  .pm-sheet{
+    position:relative; background:var(--card); width:100%; max-width:560px;
+    max-height:92vh; border-radius:16px 16px 0 0; display:flex; flex-direction:column;
+    animation:pm-up .22s ease;
+  }
+  @media(min-width:600px){ #pmodal{align-items:center; padding:20px} .pm-sheet{border-radius:16px; max-height:86vh} }
+  @keyframes pm-up{from{transform:translateY(24px); opacity:.6}to{transform:translateY(0); opacity:1}}
+  .pm-close{
+    position:absolute; top:10px; right:10px; z-index:3; background:var(--card); border:1px solid var(--line);
+    border-radius:999px; width:34px; height:34px; font-size:16px; color:var(--ink-soft);
+  }
+  .pm-scroll{overflow-y:auto; padding-bottom:8px}
+  .pm-hero{
+    aspect-ratio:1/1; max-height:320px; width:100%; background:var(--teal-tint);
+    display:flex; align-items:center; justify-content:center; font-size:80px; position:relative;
+  }
+  .pm-hero img{width:100%; height:100%; object-fit:contain; background:#fff}
+  .pm-thumbs{display:flex; gap:8px; padding:10px 16px 0; overflow-x:auto}
+  .pm-thumbs button{
+    width:52px; height:52px; border-radius:8px; border:2px solid var(--line); background:var(--teal-tint);
+    overflow:hidden; font-size:22px; flex-shrink:0; padding:0;
+  }
+  .pm-thumbs button.on{border-color:var(--teal)}
+  .pm-thumbs img{width:100%; height:100%; object-fit:cover}
+  .pm-body{padding:14px 18px 6px}
+  .pm-body h2{font-family:'Bricolage Grotesque',sans-serif; font-size:21px; line-height:1.25}
+  .pm-price{font-weight:700; font-size:19px; margin:6px 0 2px}
+  .pm-stock{font-size:13px; font-weight:600; margin-bottom:8px}
+  .pm-stock.in{color:#1E7A4F}
+  .pm-stock.out{color:var(--red)}
+  .pm-desc{color:var(--ink-soft); font-size:14.5px; margin-bottom:10px}
+  .pm-benefits{margin:0 0 12px 0; padding:0; list-style:none}
+  .pm-benefits li{font-size:14px; padding:3px 0 3px 24px; position:relative}
+  .pm-benefits li::before{content:"✓"; position:absolute; left:2px; color:var(--teal); font-weight:700}
+  .pm-specs{width:100%; border-collapse:collapse; font-size:13.5px; margin-bottom:12px}
+  .pm-specs td{border-top:1px solid var(--line); padding:7px 4px; vertical-align:top}
+  .pm-specs td:first-child{color:var(--ink-soft); width:38%}
+  .pm-trust{
+    background:var(--bg); border:1px solid var(--line); border-radius:10px;
+    padding:10px 14px; font-size:12.5px; color:var(--ink-soft); margin-bottom:12px;
+  }
+  .pm-trust div{padding:2px 0}
+  .pm-trust a{color:var(--teal); font-weight:600; text-decoration:none}
+  .pm-related h3{font-family:'Bricolage Grotesque',sans-serif; font-size:15px; margin:4px 0 8px}
+  .pm-related .rel-row{display:flex; gap:10px; overflow-x:auto; padding-bottom:6px}
+  .rel-card{
+    flex:0 0 120px; border:1px solid var(--line); border-radius:10px; overflow:hidden;
+    background:var(--card); cursor:pointer; text-align:left; padding:0;
+  }
+  .rel-card .rt{aspect-ratio:1/1; background:var(--teal-tint); display:flex; align-items:center; justify-content:center; font-size:30px}
+  .rel-card .rt img{width:100%; height:100%; object-fit:cover}
+  .rel-card .rn{font-size:12px; font-weight:600; padding:6px 8px 0; line-height:1.25}
+  .rel-card .rp{font-size:12px; font-weight:700; padding:2px 8px 8px}
+  .pm-cta{
+    position:sticky; bottom:0; background:var(--card); border-top:1px solid var(--line);
+    padding:12px 18px; display:flex; gap:10px; align-items:center;
+  }
+  .pm-cta .primary{margin-top:0; flex:1}
+  .pm-cta .qty-ctrl{flex-shrink:0}
+
+  /* ---------- product detail modal ---------- */
+  .product{cursor:pointer; position:relative}
+  .badge-tag{
+    position:absolute; top:8px; left:8px; background:var(--mango); color:var(--ink);
+    font-size:11px; font-weight:700; border-radius:999px; padding:3px 9px; z-index:2;
+  }
+  #pmOverlay{
+    position:fixed; inset:0; background:rgba(23,37,42,.5); z-index:50;
+    opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  #pmOverlay.show{opacity:1; pointer-events:auto}
+  #pmodal{
+    position:fixed; z-index:60; background:var(--card);
+    inset:auto 0 0 0; max-height:92vh; border-radius:16px 16px 0 0;
+    transform:translateY(105%); transition:transform .25s ease;
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  @media(min-width:700px){
+    #pmodal{inset:4vh 0 auto 50%; transform:translate(-50%,20px); width:min(560px,94%);
+      border-radius:16px; max-height:88vh; opacity:0; pointer-events:none}
+    #pmodal.show{transform:translate(-50%,0); opacity:1; pointer-events:auto}
+  }
+  @media(max-width:699.9px){ #pmodal.show{transform:translateY(0)} }
+  .pm-close{
+    position:absolute; top:10px; right:10px; z-index:3; background:var(--card);
+    border:1px solid var(--line); border-radius:999px; width:36px; height:36px;
+    font-size:16px; color:var(--ink-soft);
+  }
+  .pm-scroll{overflow-y:auto; padding-bottom:8px}
+  .pm-hero{
+    aspect-ratio:4/3; background:var(--teal-tint); display:flex; align-items:center;
+    justify-content:center; font-size:84px; position:relative;
+  }
+  .pm-hero img{width:100%; height:100%; object-fit:contain; background:#fff}
+  .pm-thumbs{display:flex; gap:8px; padding:10px 16px 0; overflow-x:auto}
+  .pm-thumbs button{
+    width:54px; height:54px; border-radius:8px; border:2px solid var(--line);
+    overflow:hidden; padding:0; background:var(--teal-tint); flex-shrink:0; font-size:22px;
+  }
+  .pm-thumbs button.on{border-color:var(--teal)}
+  .pm-thumbs img{width:100%; height:100%; object-fit:cover}
+  .pm-body{padding:14px 16px 4px}
+  .pm-body h2{font-family:'Bricolage Grotesque',sans-serif; font-size:21px; margin-bottom:2px}
+  .pm-cat{color:var(--ink-soft); font-size:12.5px; margin-bottom:6px}
+  .pm-price{font-size:20px; font-weight:700; margin:4px 0 8px}
+  .pm-desc{color:var(--ink-soft); font-size:14px; margin-bottom:10px}
+  .pm-benefits{list-style:none; padding:0; margin:0 0 12px}
+  .pm-benefits li{
+    padding-left:24px; position:relative; font-size:14px; margin-bottom:6px;
+  }
+  .pm-benefits li::before{content:"✓"; position:absolute; left:2px; color:var(--teal); font-weight:700}
+  .pm-specs{width:100%; border-collapse:collapse; font-size:13.5px; margin-bottom:12px}
+  .pm-specs td{border-top:1px solid var(--line); padding:7px 4px; vertical-align:top}
+  .pm-specs td:first-child{color:var(--ink-soft); width:42%}
+  .pm-trust{
+    display:flex; gap:6px; flex-wrap:wrap; margin:2px 0 12px;
+  }
+  .pm-trust span{
+    background:var(--bg); border:1px solid var(--line); border-radius:999px;
+    font-size:11.5px; padding:5px 10px; color:var(--ink-soft);
+  }
+  .pm-related h3{font-family:'Bricolage Grotesque',sans-serif; font-size:15px; margin:4px 0 8px}
+  .pm-related-row{display:flex; gap:10px; overflow-x:auto; padding-bottom:6px}
+  .pm-rel{
+    min-width:120px; max-width:120px; border:1px solid var(--line); border-radius:10px;
+    padding:8px; cursor:pointer; background:var(--card);
+  }
+  .pm-rel .re{font-size:26px; text-align:center}
+  .pm-rel .rn{font-size:12px; font-weight:600; line-height:1.25; margin:4px 0 2px}
+  .pm-rel .rp{font-size:12.5px; font-weight:700}
+  .pm-bar{
+    border-top:1px solid var(--line); background:var(--card); padding:12px 16px;
+    display:flex; gap:10px; align-items:center;
+  }
+  .pm-bar .qty-ctrl button{width:38px; height:38px}
+  .pm-add{
+    flex:1; background:var(--teal); color:#fff; border:none; border-radius:999px;
+    padding:13px; font-size:15px; font-weight:700;
+  }
+  .pm-add:hover{background:var(--teal-dark)}
+  .pm-add:disabled{opacity:.5; cursor:not-allowed}
   @media(prefers-reduced-motion:reduce){
     *{transition:none !important; animation:none !important}
     html{scroll-behavior:auto}
@@ -213,6 +370,11 @@
   <button class="go" id="footGo">View basket</button>
 </div>
 
+<div id="pmodal" aria-label="Product details">
+  <div class="pm-back" onclick="closeProduct()"></div>
+  <div class="pm-sheet" id="pmSheet"></div>
+</div>
+
 <div id="overlay"></div>
 <aside id="drawer" aria-label="Basket">
   <div class="drawer-head">
@@ -222,6 +384,13 @@
   <div class="drawer-body" id="drawerBody"></div>
   <div class="drawer-foot" id="drawerFoot"></div>
 </aside>
+
+<div id="pmOverlay"></div>
+<div id="pmodal" role="dialog" aria-modal="true" aria-label="Product details">
+  <button class="pm-close" id="pmClose" aria-label="Close">✕</button>
+  <div class="pm-scroll" id="pmScroll"></div>
+  <div class="pm-bar" id="pmBar"></div>
+</div>
 
 <script src="config.js"></script>
 <script src="products.js"></script>
@@ -258,10 +427,13 @@ function renderChips(){
 }
 
 /* ================= catalog ================= */
+const mainImage = p => (p.images && p.images[0]) || p.image || "";
+
 function productCard(p){
   const qty = cart[p.sku] || 0;
-  const img = p.image
-    ? `<img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.outerHTML='${p.emoji}'">`
+  const src = mainImage(p);
+  const img = src
+    ? `<img src="${src}" alt="${p.name}" loading="lazy" onerror="this.outerHTML='${p.emoji}'">`
     : p.emoji;
   const action = !p.inStock
     ? `<span class="oos">Out of stock</span>`
@@ -272,7 +444,8 @@ function productCard(p){
            <span>${qty}</span>
            <button data-inc="${p.sku}" aria-label="Add one">+</button>
          </div>`;
-  return `<div class="product">
+  return `<div class="product" data-view="${p.sku}">
+    ${p.badge ? `<span class="badge-tag">${p.badge}</span>` : ""}
     <div class="thumb">${img}</div>
     <div class="pbody">
       <div class="pname">${p.name}</div>
@@ -305,9 +478,98 @@ function renderCatalog(){
 }
 
 function bindCardButtons(){
-  document.querySelectorAll("[data-sku]").forEach(b => b.onclick = () => changeQty(b.dataset.sku, +1));
-  document.querySelectorAll("[data-inc]").forEach(b => b.onclick = () => changeQty(b.dataset.inc, +1));
-  document.querySelectorAll("[data-dec]").forEach(b => b.onclick = () => changeQty(b.dataset.dec, -1));
+  document.querySelectorAll("[data-sku]").forEach(b => b.onclick = e => { e.stopPropagation(); changeQty(b.dataset.sku, +1); });
+  document.querySelectorAll("[data-inc]").forEach(b => b.onclick = e => { e.stopPropagation(); changeQty(b.dataset.inc, +1); });
+  document.querySelectorAll("[data-dec]").forEach(b => b.onclick = e => { e.stopPropagation(); changeQty(b.dataset.dec, -1); });
+  document.querySelectorAll("[data-view]").forEach(c => c.onclick = () => openProduct(c.dataset.view));
+}
+
+/* ================= product detail modal ================= */
+let pmSku = null, pmImgIdx = 0;
+
+function openProduct(sku){
+  pmSku = sku; pmImgIdx = 0;
+  renderProductModal();
+  document.getElementById("pmodal").classList.add("show");
+  document.getElementById("pmOverlay").classList.add("show");
+}
+function closeProduct(){
+  document.getElementById("pmodal").classList.remove("show");
+  document.getElementById("pmOverlay").classList.remove("show");
+  pmSku = null;
+}
+document.getElementById("pmClose").onclick = closeProduct;
+document.getElementById("pmOverlay").onclick = closeProduct;
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeProduct(); });
+
+function renderProductModal(){
+  const p = bySku(pmSku); if (!p) return;
+  const gallery = (p.images && p.images.length) ? p.images : (p.image ? [p.image] : []);
+  const hero = gallery.length
+    ? `<img src="${gallery[pmImgIdx]}" alt="${p.name}" onerror="this.outerHTML='<div style=\\'font-size:84px\\'>${p.emoji}</div>'">`
+    : p.emoji;
+  const thumbs = gallery.length > 1
+    ? `<div class="pm-thumbs">${gallery.map((g, i) =>
+        `<button data-th="${i}" class="${i === pmImgIdx ? "on" : ""}" aria-label="Photo ${i+1}"><img src="${g}" alt=""></button>`).join("")}</div>`
+    : "";
+  const benefits = (p.benefits && p.benefits.length)
+    ? `<ul class="pm-benefits">${p.benefits.map(b => `<li>${b}</li>`).join("")}</ul>` : "";
+  const specs = (p.specs && p.specs.length)
+    ? `<table class="pm-specs">${p.specs.map(s => {
+        const i = s.indexOf(":");
+        const k = i > -1 ? s.slice(0, i) : s, v = i > -1 ? s.slice(i + 1).trim() : "";
+        return `<tr><td>${k}</td><td>${v}</td></tr>`;
+      }).join("")}</table>` : "";
+  const related = PRODUCTS.filter(x => x.category === p.category && x.sku !== p.sku && x.inStock).slice(0, 6);
+  const relatedHtml = related.length
+    ? `<div class="pm-related"><h3>Goes well with</h3><div class="pm-related-row">${related.map(r => `
+        <div class="pm-rel" data-rel="${r.sku}">
+          <div class="re">${mainImage(r) ? `<img src="${mainImage(r)}" style="width:100%;border-radius:6px" alt="">` : r.emoji}</div>
+          <div class="rn">${r.name}</div>
+          <div class="rp">${moneyPlain(r.price)}</div>
+        </div>`).join("")}</div></div>`
+    : "";
+  document.getElementById("pmScroll").innerHTML = `
+    <div class="pm-hero">${p.badge ? `<span class="badge-tag">${p.badge}</span>` : ""}${hero}</div>
+    ${thumbs}
+    <div class="pm-body">
+      <h2>${p.name}</h2>
+      <div class="pm-cat">${p.category} · ${p.sku}</div>
+      <div class="pm-price">${moneyPlain(p.price)}</div>
+      <p class="pm-desc">${p.desc || ""}</p>
+      ${benefits}
+      ${specs}
+      <div class="pm-trust">
+        <span>🚚 Delivery ${CONFIG.deliveryFee > 0 ? moneyPlain(CONFIG.deliveryFee) : "free"} — ${CONFIG.deliveryAreas[0]} & nearby</span>
+        <span>💳 QR transfer or Cash on Delivery</span>
+        <span>💬 Questions? WhatsApp us</span>
+      </div>
+      ${relatedHtml}
+    </div>`;
+  renderPmBar(p);
+  document.querySelectorAll("[data-th]").forEach(b => b.onclick = () => { pmImgIdx = Number(b.dataset.th); renderProductModal(); });
+  document.querySelectorAll("[data-rel]").forEach(r => r.onclick = () => { pmSku = r.dataset.rel; pmImgIdx = 0; renderProductModal(); document.getElementById("pmScroll").scrollTop = 0; });
+}
+
+function renderPmBar(p){
+  const qty = cart[p.sku] || 0;
+  document.getElementById("pmBar").innerHTML = !p.inStock
+    ? `<button class="pm-add" disabled>Out of stock</button>`
+    : qty === 0
+      ? `<button class="pm-add" id="pmAdd">Add to basket — ${moneyPlain(p.price)}</button>`
+      : `<div class="qty-ctrl">
+           <button id="pmDec" aria-label="Remove one">−</button><span>${qty}</span>
+           <button id="pmInc" aria-label="Add one">+</button>
+         </div>
+         <button class="pm-add" id="pmGo">View basket (${moneyPlain(totals().sub)})</button>`;
+  const add = document.getElementById("pmAdd");
+  if (add) add.onclick = () => { changeQty(p.sku, +1); renderPmBar(p); };
+  const inc = document.getElementById("pmInc");
+  if (inc) inc.onclick = () => { changeQty(p.sku, +1); renderPmBar(p); };
+  const dec = document.getElementById("pmDec");
+  if (dec) dec.onclick = () => { changeQty(p.sku, -1); renderPmBar(p); };
+  const go = document.getElementById("pmGo");
+  if (go) go.onclick = () => { closeProduct(); openDrawer("cart"); };
 }
 
 function changeQty(sku, d){
