@@ -114,6 +114,8 @@
         <div class="row">
           <div class="field"><label>Category</label><select id="fC"></select></div>
           <div class="field"><label>Price (MVR)</label><input id="fP" type="number" min="0"></div>
+          <div class="field"><label>Was price (optional — shows discount %)</label><input id="fW" type="number" min="0"></div>
+          <div class="field"><label>Sold count (optional)</label><input id="fSold" type="number" min="0"></div>
           <div class="field"><label>Emoji</label><input id="fE" placeholder="📦"></div>
         </div>
         <div class="field"><label>Short description (shown on the card)</label><input id="fD"></div>
@@ -279,6 +281,8 @@ function generateProductsJs(){
     specs: ${JSON.stringify(p.specs || [])},
     images: ${JSON.stringify(p.images || (p.image ? [p.image] : []))},
     badge: ${JSON.stringify(p.badge || "")},
+    wasPrice: ${Number(p.wasPrice) || 0},
+    sold: ${Number(p.sold) || 0},
     emoji: ${JSON.stringify(p.emoji || "📦")},
     inStock: ${p.inStock ? "true" : "false"},
   },`).join("\n");
@@ -372,6 +376,8 @@ function beginEdit(sku){
   $("fB").value = (p.benefits || []).join("\n");
   $("fSp").value = (p.specs || []).join("\n");
   $("fBadge").value = p.badge || "";
+  $("fW").value = p.wasPrice || "";
+  $("fSold").value = p.sold || "";
   $("fIS").value = String(p.inStock);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -381,7 +387,7 @@ function resetForm(){
   $("formTitle").textContent = "Add a product";
   $("addBtn").textContent = "Add product";
   $("cancelEdit").hidden = true;
-  ["fN","fS","fP","fE","fD","fB","fSp"].forEach(id => $(id).value = "");
+  ["fN","fS","fP","fE","fD","fB","fSp","fW","fSold"].forEach(id => $(id).value = "");
   $("fImg").value = ""; $("fBadge").value = ""; $("fIS").value = "true";
 }
 $("cancelEdit").onclick = resetForm;
@@ -402,6 +408,9 @@ $("addBtn").onclick = async () => {
   record.benefits = $("fB").value.split("\n").map(s => s.trim()).filter(Boolean);
   record.specs = $("fSp").value.split("\n").map(s => s.trim()).filter(Boolean);
   record.badge = $("fBadge").value;
+  const was = Number($("fW").value);
+  record.wasPrice = was > price ? was : 0;
+  record.sold = Number($("fSold").value) || 0;
   record.emoji = $("fE").value.trim() || "📦";
   record.inStock = $("fIS").value === "true";
 
